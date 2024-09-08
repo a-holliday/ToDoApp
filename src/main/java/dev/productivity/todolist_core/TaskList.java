@@ -13,6 +13,7 @@ public class TaskList {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    //TODO make taskListName unique across taskLists
     @JsonProperty("taskListName")
     private String name;
 
@@ -38,6 +39,10 @@ public class TaskList {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

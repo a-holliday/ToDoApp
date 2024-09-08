@@ -126,5 +126,25 @@ public class Task {
         public void setTaskList(TaskList taskList) {
             this.taskList = taskList;
         }
+
+    public void addTag(String tagName) {
+        tags.add(new Tag(tagName));
     }
+
+    public void removeTag(String tagName) {
+        tags.removeIf(tag -> tag.getName().equals(tagName));
+    }
+
+    public void removeTagById(Long tagId) {
+        tags.removeIf(tag -> tag.getId().equals(tagId));
+    }
+
+    public void updateTag(String tagName, String newTagName) {
+        for (Tag tag : tags) {
+            if (tag.getName().equals(tagName)) {
+                tag.setName(newTagName);
+            }
+        }
+    }
+}
 

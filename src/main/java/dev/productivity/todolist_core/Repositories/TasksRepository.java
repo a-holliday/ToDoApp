@@ -11,4 +11,6 @@ import java.util.List;
 public interface TasksRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByTaskList(TaskList taskList);
+
+
 }

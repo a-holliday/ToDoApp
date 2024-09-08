@@ -39,6 +39,19 @@ public class TaskService {
     public List<Task> findTasksByTaskList(TaskList taskList) {
         return tasksRepository.findByTaskList(taskList);
     }
+
+    public void deleteTaskByTaskList(TaskList taskList) {
+        List<Task> tasks = findTasksByTaskList(taskList);
+        tasksRepository.deleteAll(tasks);
+    }
+
+    public void removeTagFromAllTasks(Long tagId) {
+        List<Task> tasks = findAllTasks();
+        for (Task task : tasks) {
+            task.getTags().removeIf(tag -> tag.getId().equals(tagId));
+            saveTask(task);
+        }
+    }
 }
 
 

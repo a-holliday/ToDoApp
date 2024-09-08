@@ -2,6 +2,7 @@ package dev.productivity.todolist_core.Controllers;
 
 import dev.productivity.todolist_core.Services.TaskListService;
 import dev.productivity.todolist_core.Services.TaskService;
+import dev.productivity.todolist_core.Tag;
 import dev.productivity.todolist_core.TaskList;
 import dev.productivity.todolist_core.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,4 +111,95 @@ public class TaskListController {
             return ResponseEntity.notFound().build();  // Task not found or doesn't belong to the specified TaskList
         }
     }
+
+    //create a post mapping for updating a task
+    @PutMapping(value = "/{taskListId}/tasks/{taskId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> updateTask(@PathVariable Long taskListId, @PathVariable Long taskId, @RequestBody Task task) {
+        // Fetch the Task to ensure it belongs to the specified TaskList
+        Optional<Task> taskOptional = taskService.findTaskById(taskId);
+        if (taskOptional.isPresent() && taskOptional.get().getTaskList().getId().equals(taskListId)) {
+            task.setId(taskId);
+            Task updatedTask = taskService.saveTask(task);
+            return ResponseEntity.ok(updatedTask);
+        } else {
+            return ResponseEntity.notFound().build();  // Task not found or doesn't belong to the specified TaskList
+        }
+    }
+
+    //create a put mapping for updating a task list
+    @PutMapping(value = "/{taskListId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TaskList> updateTaskList(@PathVariable Long taskListId, @RequestBody TaskList taskList) {
+        // Fetch the TaskList to ensure it exists
+        Optional<TaskList> taskListOptional = taskListService.findTaskListById(taskListId);
+        if (taskListOptional.isPresent()) {
+            taskList.setId(taskListId);
+            TaskList updatedTaskList = taskListService.saveTaskList(taskList);
+            return ResponseEntity.ok(updatedTaskList);
+        } else {
+            return ResponseEntity.notFound().build();  // TaskList not found
+        }
+
+
+    }
+
+
+    //post mapping for tag
+    @PostMapping(value = "/{taskListId}/tasks/{taskId}/tags", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> addTagToTask(@PathVariable Long taskListId, @PathVariable Long taskId, @RequestBody String tagName) {
+        // Fetch the Task to ensure it belongs to the specified TaskList
+        Optional<Task> taskOptional = taskService.findTaskById(taskId);
+        if (taskOptional.isPresent() && taskOptional.get().getTaskList().getId().equals(taskListId)) {
+            Task task = taskOptional.get();
+            task.addTag(tagName);
+            Task updatedTask = taskService.saveTask(task);
+            return ResponseEntity.ok(updatedTask);
+        } else {
+            return ResponseEntity.notFound().build();  // Task not found or doesn't belong to the specified TaskList
+        }
+    }
+
+    //update a tag by name
+    @PutMapping(value = "/{taskListId}/tasks/{taskId}/tags/{tagName}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> updateTagOnTask(@PathVariable Long taskListId, @PathVariable Long taskId, @PathVariable String tagName, @RequestBody String newTagName) {
+        // Fetch the Task to ensure it belongs to the specified TaskList
+        Optional<Task> taskOptional = taskService.findTaskById(taskId);
+        if (taskOptional.isPresent() && taskOptional.get().getTaskList().getId().equals(taskListId)) {
+            Task task = taskOptional.get();
+            task.updateTag(tagName, newTagName);
+            Task updatedTask = taskService.saveTask(task);
+            return ResponseEntity.ok(updatedTask);
+        } else {
+            return ResponseEntity.notFound().build();  // Task not found or doesn't belong to the specified TaskList
+        }
+    }
+
+    //get mapping for tag by name
+    @GetMapping(value = "/{taskListId}/tasks/{taskId}/tags/{tagName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Tag> getTagFromTask(@PathVariable Long taskListId, @PathVariable Long taskId, @PathVariable String tagName) {
+        // Fetch the Task to ensure it belongs to the specified TaskList
+        Optional<Task> taskOptional = taskService.findTaskById(taskId);
+        if (taskOptional.isPresent() && taskOptional.get().getTaskList().getId().equals(taskListId)) {
+            Task task = taskOptional.get();
+            Optional<Tag> tagOptional = task.getTags().stream().filter(tag -> tag.getName().equals(tagName)).findFirst();
+            return tagOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        } else {
+            return ResponseEntity.notFound().build();  // Task not found or doesn't belong to the specified TaskList
+        }
+    }
+
+    // delete mapping for tag
+    @DeleteMapping(value = "/{taskListId}/tasks/{taskId}/tags/{tagId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> removeTagFromTask(@PathVariable Long taskListId, @PathVariable Long taskId, @PathVariable Long tagId) {
+        // Fetch the Task to ensure it belongs to the specified TaskList
+        Optional<Task> taskOptional = taskService.findTaskById(taskId);
+        if (taskOptional.isPresent() && taskOptional.get().getTaskList().getId().equals(taskListId)) {
+            Task task = taskOptional.get();
+            task.removeTagById(tagId);
+            Task updatedTask = taskService.saveTask(task);
+            return ResponseEntity.ok(updatedTask);
+        } else {
+            return ResponseEntity.notFound().build();  // Task not found or doesn't belong to the specified TaskList
+        }
+    }
+
 }
