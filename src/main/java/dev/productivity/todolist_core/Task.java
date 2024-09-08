@@ -1,11 +1,14 @@
 package dev.productivity.todolist_core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @Entity
 public class Task {
         @Id
@@ -21,45 +24,46 @@ public class Task {
         @Column(name = "description")
         private String description;
 
-        @ManyToMany
+        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
         @JoinTable(
                 name = "task_tag",
                 joinColumns = @JoinColumn(name = "task_id"),
                 inverseJoinColumns = @JoinColumn(name = "tag_id")
         )
         @JsonProperty("tags")
-        private List<Tag> tags;
+        private Set<Tag> tags;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "task_list_id")
+        @JsonIgnore
         @JsonProperty("taskList")
         private TaskList taskList;
 
         // Constructors, getters, and setters
 
         public Task() {
-            this.tags = new ArrayList<>();
+            this.tags = new HashSet<>();
         }
 
         public Task(@JsonProperty("taskName") String taskName, @JsonProperty("completed") boolean completed, @JsonProperty("description") String description) {
             this.taskName = taskName;
             this.completed = completed;
             this.description = description;
-            this.tags = new ArrayList<>();
+            this.tags = new HashSet<>();
         }
 
         public Task(String taskName) {
             this.taskName = taskName;
             this.completed = false;
             this.description = "";
-            this.tags = new ArrayList<>();
+            this.tags = new HashSet<>();
         }
 
         public Task(String taskName, String description, List<String> tags) {
             this.taskName = taskName;
             this.completed = false;
             this.description = description;
-            this.tags = new ArrayList<>();
+            this.tags = new HashSet<>();
             for (String tag : tags) {
                 this.tags.add(new Tag(tag));
             }
@@ -69,7 +73,7 @@ public class Task {
             this.taskName = taskName;
             this.completed = false;
             this.description = "";
-            this.tags = new ArrayList<>();
+            this.tags = new HashSet<>();
             for (String tag : tags) {
                 this.tags.add(new Tag(tag));
             }
@@ -107,11 +111,11 @@ public class Task {
             this.description = description;
         }
 
-        public List<Tag> getTags() {
+        public Set<Tag> getTags() {
             return tags;
         }
 
-        public void setTags(List<Tag> tags) {
+        public void setTags(Set<Tag> tags) {
             this.tags = tags;
         }
 
